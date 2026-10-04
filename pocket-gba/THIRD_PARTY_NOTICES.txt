@@ -1,0 +1,13 @@
+POCKET 1.0.0
+
+Three.js 0.170.0 — MIT
+https://github.com/mrdoob/three.js/tree/r170
+
+mGBA SDK @wasm-gaming/mgba-wasm 0.1.1 — MPL-2.0
+Corresponding source and build scripts: https://github.com/wasm-gaming/mGBA-wasm
+Upstream: https://github.com/mgba-emu/mgba
+Runtime files are unmodified copies from the published npm package.
+
+Original Pocket Field Test homebrew, UI and procedural 3D geometry — MIT.
+Test cartridge source: https://github.com/staruhub/chaogeek-publisher/tree/pocket-gba/.pocket-gba-src/demo-src
+Commercial Nintendo ROMs and BIOS files are not included.
