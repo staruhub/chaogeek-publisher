@@ -6,7 +6,7 @@
   "scripts": {
     "prepare-assets": "node prepare.mjs",
     "build": "npm run prepare-assets && vite build --base=/chaogeek-publisher/pocket-gba/",
-    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "preview": "vite preview --base=/chaogeek-publisher/pocket-gba/ --host 0.0.0.0 --port 4173",
     "test": "node tests/browser.mjs"
   },
   "dependencies": {"three": "0.170.0", "@wasm-gaming/mgba-wasm": "0.1.1"},

@@ -34,13 +34,19 @@ jobs:
         if: always()
         with:
           name: pocket-browser-evidence
-          path: .pocket-gba-src/qa/
+          path: |
+            .pocket-gba-src/qa/
+            .pocket-gba-src/dist/
+            .pocket-gba-src/src/
+            .pocket-gba-src/prepare.mjs
+            .pocket-gba-src/package.json
+            .pocket-gba-src/package-lock.json
+            .pocket-gba-src/index.html
+            .pocket-gba-src/tests/
       - name: Commit only the isolated public directory
         run: |
           mkdir -p ../pocket-gba
           rsync -a --delete dist/ ../pocket-gba/
-          mkdir -p ../pocket-gba/qa
-          cp qa/*.png qa/report.json ../pocket-gba/qa/
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add ../pocket-gba package-lock.json
