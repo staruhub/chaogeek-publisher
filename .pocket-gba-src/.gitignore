@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/vendor/
+public/pocket-test.gba
+public/version.json
+public/THIRD_PARTY_NOTICES.txt
+public/THREE-LICENSE.txt
+qa/

@@ -1,0 +1,15 @@
+{
+  "name": "pocket-gba",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "prepare-assets": "node prepare.mjs",
+    "build": "npm run prepare-assets && vite build --base=/chaogeek-publisher/pocket-gba/",
+    "preview": "vite preview --host 0.0.0.0 --port 4173",
+    "test": "node tests/browser.mjs"
+  },
+  "dependencies": {"three": "0.170.0", "@wasm-gaming/mgba-wasm": "0.1.1"},
+  "devDependencies": {"vite": "7.1.12", "playwright": "1.56.0"},
+  "engines": {"node": ">=22.12"}
+}

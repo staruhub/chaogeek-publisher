@@ -1,0 +1,82 @@
+name: Pocket GBA build and browser verification
+on:
+  push:
+    branches: [pocket-gba, gh-pages]
+    paths: ['.pocket-gba-src/**', '.github/workflows/pocket-gba.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pocket-gba-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/pocket-gba'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: .pocket-gba-src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Real browser regression
+        run: |
+          npm run preview > /tmp/pocket-preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:4173/chaogeek-publisher/pocket-gba/ >/dev/null && break; sleep 1; done
+          npm test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pocket-browser-evidence
+          path: .pocket-gba-src/qa/
+      - name: Commit only the isolated public directory
+        run: |
+          mkdir -p ../pocket-gba
+          rsync -a --delete dist/ ../pocket-gba/
+          mkdir -p ../pocket-gba/qa
+          cp qa/*.png qa/report.json ../pocket-gba/qa/
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ../pocket-gba package-lock.json
+          git commit -m 'build(pocket): verified static GBA release' || test -z "$(git status --porcelain ../pocket-gba)"
+          git push origin HEAD:pocket-gba
+  public-verification:
+    if: github.ref == 'refs/heads/gh-pages'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: .pocket-gba-src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for unauthenticated public release
+        run: |
+          node --input-type=module - <<'JS'
+          import fs from 'node:fs';
+          const expected=JSON.parse(fs.readFileSync('../pocket-gba/version.json','utf8')).commit;
+          const url='https://staruhub.github.io/chaogeek-publisher/pocket-gba/version.json';
+          for(let i=0;i<60;i++){
+            try{const r=await fetch(url+'?check='+Date.now());if(r.ok&&(await r.json()).commit===expected){console.log('PUBLIC RELEASE VERIFIED',url,expected);process.exit(0);}}catch{}
+            await new Promise(r=>setTimeout(r,10000));
+          }
+          throw new Error('Public release did not become available');
+          JS
+      - run: npm test
+        env:
+          TEST_URL: https://staruhub.github.io/chaogeek-publisher/pocket-gba/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pocket-public-browser-evidence
+          path: .pocket-gba-src/qa/
